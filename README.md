@@ -86,13 +86,8 @@ Common environment variables used by the benchmark scripts:
 - `MODELS_FLM` — FLM model list (space-separated)
 - `MODELS_LLAMACPP` — LLaMA.cpp model list (space-separated)
 
-## Notes / troubleshooting
+## Notes
 
-<<<<<<< HEAD
 - Ensure you run the correct script path (for example `./scripts/benchmark.sh`).
-=======
-- Ensure you run the correct script path (for example `./scripts/benchmark_ai_tokens.sh`).
->>>>>>> c20c6e917a217eff7844018d66a0ce386bece130
-- If overriding models “doesn’t work”, the script may be resetting the variable later. The safe pattern is:
-  - `: "${MODELS_LLAMACPP:=default list here}"` 
+- The benchmark script will save results in `~/logs/benchmark_FLMSERVER.jsonl` and `~/logs/benchmark_LLAMACPP.jsonl` by default.
 
