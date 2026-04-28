@@ -13,8 +13,12 @@ This repo contains some Bash scripts to run simple AI benchmarks and visualize t
 
 Run the benchmark:
 
-```bash
+# Provide prompt as env var
+PROMPT="whatever you wanna benchmark"
+# Provide a list of models for...
+MODELS_LLAMACPP="daksdkasd dkasdkaksa"
 ./benchmark.sh
+
 
 Run render_results_bar_image.sh:
 
