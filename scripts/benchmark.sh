@@ -7,10 +7,11 @@
 
 #Call specify model:MODELS_LLAMACPP/FLM="modelo-or1 modelo-or2" ./benchmark.sh
 
+# Configurable endpoints + prompt (override via env)
+HOST_LLAMACPP="${HOST_LLAMACPP:-http://192.168.0.142:4000/v1/chat/completions}"
+HOST_FLM="${HOST_FLM:-http://192.168.0.142:52625/v1/chat/completions}"
+PROMPT="${PROMPT:-write a terraform snippet that deploys an ec2 instance}"
 
-HOST_LLAMACPP="http://192.168.0.142:4000/v1/chat/completions"
-HOST_FLM="http://192.168.0.142:52625/v1/chat/completions"
-PROMPT="write a terraform snippet that deploys an ec2 instance"
 # distinguish between unset MODELS_FLM and empty MODELS_FLM
 if [ -z "${MODELS_FLM+x}" ]; then
   echo "MODELS_FLM is unset, using default models"
