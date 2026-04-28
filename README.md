@@ -88,7 +88,11 @@ Common environment variables used by the benchmark scripts:
 
 ## Notes / troubleshooting
 
+<<<<<<< HEAD
 - Ensure you run the correct script path (for example `./scripts/benchmark.sh`).
+=======
+- Ensure you run the correct script path (for example `./scripts/benchmark_ai_tokens.sh`).
+>>>>>>> c20c6e917a217eff7844018d66a0ce386bece130
 - If overriding models “doesn’t work”, the script may be resetting the variable later. The safe pattern is:
   - `: "${MODELS_LLAMACPP:=default list here}"` 
 
