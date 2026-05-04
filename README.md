@@ -24,9 +24,9 @@ Common environment variables used by the benchmark scripts:
 
 - `HOST_FLM` — FLMServer endpoint (example: `http://<ip>:52625/v1/chat/completions`)
 - `HOST_LLAMACPP` — LLaMA.cpp endpoint (example: `http://<ip>:4000/v1/chat/completions`)
-- `PROMPT` — Same prompt for all models selected   
-- `MODELS_FLM` — FLM model list (space-separated)
-- `MODELS_LLAMACPP` — LLaMA.cpp model list (space-separated)
+- `PROMPT` — Same prompt for all selected models 
+- `MODELS_FLM` — FLM model list  
+- `MODELS_LLAMACPP` — LLaMA.cpp model list
 
 ### 1) Run the benchmark
 
@@ -59,14 +59,14 @@ Or launch the script and use all the default models
 ./scripts/results_bar_chart.sh 
 ```
 
-<pass the name of the JSON result as a parameter> ~/logs/benchmark_LLAMACPP.jsonl or benchmark_FLMSERVER.jsonl by default
+<pass the name of the JSON result as a parameter> ~/logs/benchmark_LLAMACPP.jsonl or  ~/logs/benchmark_FLMSERVER.jsonl by default
 
 ### 3) Render results as an image
 
 ```bash
 ./scripts/render_results_bar_image.sh  
 ```
-<pass the name of the JSON result as a parameter> ~/logs/benchmark_LLAMACPP.jsonl or benchmark_FLMSERVER.jsonl by default
+<pass the name of the JSON result as a parameter> ~/logs/benchmark_LLAMACPP.jsonl or  ~/logs/benchmark_FLMSERVER.jsonl by default
 
 ### 4) Generate/edit sample JSON results
 
