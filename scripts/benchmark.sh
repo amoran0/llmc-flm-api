@@ -15,7 +15,7 @@ PROMPT="${PROMPT:-write a terraform snippet that deploys an ec2 instance}"
 # distinguish between unset MODELS_FLM and empty MODELS_FLM
 if [ -z "${MODELS_FLM+x}" ]; then
   echo "MODELS_FLM is unset, using default models"
-  MODELS_FLM="deepseek-r1:8b gpt-oss:20b llama3.1:8b qwen3.5:9b"
+  MODELS_FLM="${deepseek-r1:8b gpt-oss:20b llama3.1:8b qwen3.5:9b}"
 elif [ -z "$MODELS_FLM" ]; then
   echo "MODELS_FLM is set but empty, no models will be tested"
 fi
@@ -33,62 +33,84 @@ echo models llama: $MODELS_LLAMACPP
 #MODELS_FLM="deepseek-r1:8b gpt-oss:20b llama3.1:8b qwen3.5:9b"
 #MODELS_LLAMACPP="glm-4.7-flash qwen3-coder-next gpt-oss-20b-q4-k-m gpt-oss-120b lfm2-24b-a2b-mxfp4-   moe lfm2.5-1.2b-q8-k-xl"
 
-
 log_json() {
         local model="$1"
         local server="$2"
-        local prompt="$3"
-        local prompt_tokens="$4"
-        local prompt_processing="$5"
-        local generation_tokens="$6"
-        local tokengeneration="$7"
+        local input_prompt="$3"
+        local prompt_token_count="$4"
+        local prompt_processing_time_ms="$5"
+        local generated_token_count="$6"
+        local generation_time_ms="$7"
+        local generated_tokens_per_second="$8"
 
-        prompt=$(echo "$prompt" | sed 's/\\/\\\\/g; s/"/\\"/g')
+        input_prompt=$(echo "$input_prompt" | sed 's/\\/\\\\/g; s/"/\\"/g')
 
-          echo "{\"model\":\"$model\",\"server\":\"$server\",\"prompt\":\"$prompt\",\"prompt_tokens\":$prompt_tokens,\"prompt_processing\":$prompt_processing,\"tokengeneration\":$tokengeneration,\"generation_tokens\":$generation_tokens}" 
+        # Note: prompt_tokens_per_second is included in the schema you requested.
+        # If you want it logged too, pass it as an additional argument and add it below.
+        echo "{\"model\":\"$model\",\"server\":\"$server\",\"input_prompt\":\"$input_prompt\",\"prompt_token_count\":$prompt_token_count,\"prompt_processing_time_ms\":$prompt_processing_time_ms,\"generation_time_ms\":$generation_time_ms,\"generated_tokens_per_second\":$generated_tokens_per_second,\"generated_token_count\":$generated_token_count}"
 }
 
 stats_FLMSERVER() {
-  local name="$1" response="$2" prompt="$3"
-  local prompt_tokens=$(:wqecho "$response" | jq '.usage.prompt_tokens // 0')
-  local completion_tokens=$(echo "$response" | jq '.usage.completion_tokens // 0')
-  local prefill_seconds=$(echo "$response" | jq '.usage.prefill_duration_ttft // 0')
-  local decoding_seconds=$(echo "$response" | jq '.usage.decoding_duration // 0')
-  local prompt_speed=$(echo "$response" | jq '.usage.prefill_speed_tps // 0')
-  local generation_speed=$(echo "$response" | jq '.usage.decoding_speed_tps // 0')
+  local name="$1" response="$2" input_prompt="$3"
 
+  local prompt_token_count=$(echo "$response" | jq '.usage.prompt_tokens // 0')
+  local generated_token_count=$(echo "$response" | jq '.usage.completion_tokens // 0')
+
+  local prompt_processing_time_ms=$(echo "$response" | jq '.usage.prefill_duration_ttft // 0')
+  local generation_time_ms=$(echo "$response" | jq '.usage.decoding_duration // 0')
+
+  local prompt_tokens_per_second=$(echo "$response" | jq '.usage.prefill_speed_tps // 0')
+  local generated_tokens_per_second=$(echo "$response" | jq '.usage.decoding_speed_tps // 0')
 
   echo "= $name ="
-  echo "Prompt: $prompt"
-  echo "Prompt generation:     ${prompt_tokens} tokens in ${prefill_seconds}ms (${prompt_speed} t/s)"
-  echo "Generation: ${completion_tokens} tokens in ${decoding_seconds}ms (${generation_speed} t/s)"
+  echo "Prompt: $input_prompt"
+  echo "Prompt processing:     ${prompt_token_count} tokens in ${prompt_processing_time_ms}ms (${prompt_tokens_per_second} t/s)"
+  echo "Generation: ${generated_token_count} tokens in ${generation_time_ms}ms (${generated_tokens_per_second} t/s)"
   echo ""
 
-  log_json "$name" "FLMServer" "$prompt" "$prompt_tokens" "$prefill_seconds" "$decoding_seconds" "$generation_speed" >> ~/logs/benchmark_FLMSERVER.jsonl
-
+  log_json \
+    "$name" \
+    "FLMServer" \
+    "$input_prompt" \
+    "$prompt_token_count" \
+    "$prompt_processing_time_ms" \
+    "$generated_token_count" \
+    "$generation_time_ms" \
+    "$generated_tokens_per_second" \
+    >> ~/logs/benchmark_FLMSERVER.jsonl
 }
+
 stats_LLAMACPP() {
 
-  local name="$1" response="$2" prompt="$3"
-  local prompt_number=$(echo "$response" | jq '.timings.prompt_n // 0')
-  local prompt_processing_time=$(echo "$response" | jq '.timings.prompt_ms // 0')
-  local prompt_per_second=$(echo "$response" | jq '.timings.prompt_per_second // 0')
-  local token_generated=$(echo "$response" | jq '.timings.predicted_n // 0')
-  local token_generated_time=$(echo "$response" | jq '.timings.predicted_ms // 0')
+  local name="$1" response="$2" input_prompt="$3"
+
+  local prompt_token_count=$(echo "$response" | jq '.timings.prompt_n // 0')
+  local prompt_processing_time_ms=$(echo "$response" | jq '.timings.prompt_ms // 0')
+  local prompt_tokens_per_second=$(echo "$response" | jq '.timings.prompt_per_second // 0')
+
+  local generated_token_count=$(echo "$response" | jq '.timings.predicted_n // 0')
+  local generation_time_ms=$(echo "$response" | jq '.timings.predicted_ms // 0')
   local generated_tokens_per_second=$(echo "$response" | jq '.timings.predicted_per_second // 0')
 
   echo "= $name ="
-  echo "Prompt: $prompt"
-  echo "Prompt:     $prompt_number tokens in ${prompt_processing_time}ms (${prompt_per_second} t/s)"
-  echo "Generation: $token_generated tokens in ${token_generated_time}ms (${generated_tokens_per_second} t/s)"
+  echo "Prompt: $input_prompt"
+  echo "Prompt processing:     ${prompt_token_count} tokens in ${prompt_processing_time_ms}ms (${prompt_tokens_per_second} t/s)"
+  echo "Generation: ${generated_token_count} tokens in ${generation_time_ms}ms (${generated_tokens_per_second} t/s)"
   echo ""
 
-  log_json "$name" "LLaMACPP" "$prompt" "$prompt_number" "$prompt_per_second" "$token_generated" "$generated_tokens_per_second" >> ~/logs/benchmark_LLAMACPP.jsonl
-
-
+  log_json \
+    "$name" \
+    "LLaMACPP" \
+    "$input_prompt" \
+    "$prompt_token_count" \
+    "$prompt_processing_time_ms" \
+    "$prompt_tokens_per_second" \
+    "$generated_token_count" \
+    "$generation_time_ms" \
+    "$generated_tokens_per_second" \
+    >> ~/logs/benchmark_LLAMACPP.jsonl
 }
-
-echo "=== FLMServer ==="
+echo "= FLMServer ="
 
 for model in $MODELS_FLM; do
   cat > /tmp/payload.json <<EOF
@@ -103,7 +125,7 @@ EOF
   stats_FLMSERVER "FLMServer ($model)" "$curl_response_FLM" "$PROMPT"
 done
 
-echo "=== LLaMACPP ==="
+echo "= LLaMACPP ="
 
 for model in $MODELS_LLAMACPP; do
   cat > /tmp/payload.json <<EOF
