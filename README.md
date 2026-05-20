@@ -6,6 +6,7 @@ Bash scripts to benchmark multiple LLM models (OpenAI-compatible `chat/completio
 
 - `gnuplot`
 - `jq`
+- `request`
 
 (Chart scripts may require additional tools depending on how they render images; see each script header.)
 
@@ -76,8 +77,29 @@ This is useful to test the chart scripts without running real benchmarks:
 ./scripts/benchmark_generate_random_results.sh 
 ```
 
+## Automated Testing with .feature Files and Python
+The `.feature` files in the `features/` directory are designed for automated testing of the benchmark scripts using a Python testing framework like `behave`. These files define test scenarios in a human-readable format, allowing you to verify that the benchmark scripts are functioning correctly.
+
+The .feature file defines the test scenarios and expected application behavior using a readable Behavior-Driven Development (BDD) syntax.
+
+The Python script interprets and executes these scenarios, automatically verifying whether each test passes according to the expected results.
+
+### How to Run the Tests
+
+### 1)Run the test aginst the original benchmark script:
+
+```bash
+BENCHMARK_SCRIPT= /your_path/benchmark.sh python3 -m behave -f pretty benchmark.feature
+```
+### 2)Run the test against the benchmark python script:
+
+```bash
+bashBENCHMARK_SCRIPT= /your_path/benchmark.py python3 -m behave -f pretty benchmark.feature
+``` 
+
 ## Notes
   
 - Ensure you run the correct script path (for example `./scripts/benchmark.sh`in my case).
 - The benchmark script will save results in `~/logs/benchmark_FLMSERVER.jsonl` and `~/logs/benchmark_LLAMACPP.jsonl` by default.
+
 
