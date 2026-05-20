@@ -1,22 +1,22 @@
-Feature: Run benchmark script
+Feature: Benchmark script
 
-  Scenario: Run benchmark with explicit model lists
-    Given a list of FLM models "model1 model2"
-    And a list of llama.cpp models "llama1 llama2"
+  Scenario: Run benchmark with explicit llama.cpp model lists
+    Given a list of llama.cpp models "glm-4.7-flash gpt-oss-20b-q4-k-m"
     When I run the benchmark script
-    Then the FLM benchmark log should contain 2 correctly formatted entries
-    And the llama.cpp benchmark log should contain 2 correctly formatted entries
+    Then the llama.cpp benchmark log should contain 2 correctly formatted entries
 
-  Scenario: Run benchmark with empty FLM model list
-    Given a list of FLM models ""
-    And a list of llama.cpp models "llama1"
+  Scenario: Run benchmark with empty llama.cpp model list
+    Given a list of llama.cpp models ""
     When I run the benchmark script
-    Then the FLM benchmark log should contain 0 correctly formatted entries
-    And the llama.cpp benchmark log should contain 1 correctly formatted entry
+    Then the llama.cpp benchmark log should contain 0 correctly formatted entries
 
   Scenario: Logged entries include the configured prompt
-    Given a list of FLM models "model1"
-    And a list of llama.cpp models "llama1"
+    Given a list of llama.cpp models "gpt-oss-20b-q4-k-m"
     And a prompt "write a terraform snippet that deploys an ec2 instance"
     When I run the benchmark script
     Then every benchmark log entry should include the prompt "write a terraform snippet that deploys an ec2 instance"
+
+  Scenario: Llama.cpp benchmark log entries contain all required fields and are not empty
+    Given a list of llama.cpp models "glm-4.7-flash"
+    When I run the benchmark script
+    Then each llama.cpp benchmark log entry should contain all required fields and non-empty values
